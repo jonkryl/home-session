@@ -10,12 +10,14 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.hamcrest.Matchers.startsWith
 
 /** CI changes the actual Android setting to 2.0 before launching this fresh process on 24 and 36. */
 @RunWith(AndroidJUnit4::class)
@@ -39,12 +41,14 @@ class LargeFontAccessibilityTest {
             onView(withContentDescription("Undo: Sweep floor")).perform(scrollTo(), click())
             assertEquals(1, savedState().history.size)
             assertNull(savedState().tasks.single { it.title == "Sweep floor" }.lastDone)
+            // Preserve the real completion timestamp before a failed assertion closes ActivityScenario.
+            onView(withText(startsWith("Done: "))).perform(scrollTo())
+            saveScreenshot("03-font-200-api-${Build.VERSION.SDK_INT}.png")
             onView(withId(R.id.session_list)).check { view, error ->
                 if (error != null) throw error
                 textViews(requireNotNull(view)).filter { it.visibility == View.VISIBLE && it.text.isNotEmpty() }
                     .forEach(::assertTextFits)
             }
-            saveScreenshot("03-font-200-api-${Build.VERSION.SDK_INT}.png")
             tap(R.id.session_cancel)
             onView(withId(android.R.id.button1)).perform(click())
             assertNull(savedState().activeSession)
@@ -59,7 +63,12 @@ class LargeFontAccessibilityTest {
         val availableHeight = text.height - text.compoundPaddingTop - text.compoundPaddingBottom
         assertTrue("Text is not vertically clipped: ${text.text}", layout.height <= availableHeight + 1)
         for (line in 0 until layout.lineCount) {
-            assertTrue("Text is not horizontally clipped: ${text.text}", layout.getLineWidth(line) <= availableWidth + 1f)
+            val visibleWidth = layout.getLineMax(line)
+            val diagnostic = "line=$line visibleWidth=$visibleWidth totalWidth=${layout.getLineWidth(line)} " +
+                "availableWidth=$availableWidth visibleEnd=${layout.getLineVisibleEnd(line)} text=${text.text}"
+            android.util.Log.i("FontLayout", diagnostic)
+            // getLineWidth includes the invisible whitespace at a wrapped line end; getLineMax measures visible text.
+            assertTrue("Text is not horizontally clipped: $diagnostic", visibleWidth <= availableWidth + 1f)
             assertEquals("Text is not ellipsized: ${text.text}", 0, layout.getEllipsisCount(line))
         }
     }
