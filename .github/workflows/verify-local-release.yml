@@ -71,3 +71,66 @@ jobs:
           retention-days: 90
       - name: Publish verified public files and proof as a GitHub prerelease
         run: python3 public-payload/scripts/verify-public-release.py publish --payload public-payload/release-candidate --output verification-output
+
+  release-ui-screenshots:
+    name: Signed release UI screenshots offline on API 36 (RU and EN)
+    needs: verify-public-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    env:
+      HOME_SESSION_SOURCE_SHA: ${{ inputs.source_sha }}
+      HOME_SESSION_CI_RUN_ID: ${{ inputs.verified_ci_run_id }}
+    steps:
+      - name: Check out the same public APK and capture helper
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          path: public-payload
+          persist-credentials: false
+      - name: Recheck public APK bytes before any device action
+        run: python3 public-payload/scripts/verify-public-release.py inputs --payload public-payload/release-candidate
+      - name: Download successful independent verification proof
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: home-session-public-release-verification
+          path: verified-public-release
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK and emulator tools (no build)
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: 'platform-tools emulator'
+          log-accepted-android-sdk-licenses: 'false'
+      - name: Check disk capacity and enable hardware acceleration
+        run: |
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+          available_kib=$(df -Pk "$RUNNER_TEMP" | awk 'NR == 2 {print $4}')
+          test "$available_kib" -ge 8388608
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          mkdir -p release-ui-evidence
+      - name: Capture real release home, plan, session and journal in both languages
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: python3 public-payload/scripts/verify-public-release.py screenshots --payload public-payload/release-candidate --verified verified-public-release/artifact-verification-provenance.json --output release-ui-evidence
+      - name: Save original PNGs, UI hierarchies, actions and offline release receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-ui-api-36-offline-ru-en
+          path: release-ui-evidence/
+          if-no-files-found: error
+          retention-days: 90
