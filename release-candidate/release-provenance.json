@@ -1,0 +1,127 @@
+{
+  "repository": "jonkryl/home-session",
+  "source_sha": "55fcd6ce6f23054856ee44b37d7c3f51805ac856",
+  "method": "local",
+  "built_at": "2026-10-03T16:31:48.865425+00:00",
+  "release_run_url": null,
+  "build_host": "authorized shared Mac lane",
+  "build_environment": {
+    "host_os": "Darwin",
+    "host_architecture": "arm64",
+    "jdk_major": 17,
+    "jdk_version": "17.0.20.1",
+    "gradle_version": "8.13",
+    "gradle_distribution_url": "https://services.gradle.org/distributions/gradle-8.13-bin.zip",
+    "gradle_distribution_sha256_pin": "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78",
+    "android_platform_api": 36,
+    "android_platform_revision": "2",
+    "declared_agp_version": "8.13.2",
+    "declared_kotlin_android_plugin_version": "2.2.21",
+    "compiler_build_tools_version_declared_in_source": null,
+    "compiler_build_tools_selection": "AGP_default_not_explicit_in_source",
+    "actual_compiler_build_tools_version_independently_queried": false,
+    "local_verification_build_tools_version": "35.0.0",
+    "local_verification_zipalign_page_size_16_supported": true,
+    "android_platform_metadata_sha256": "72291ff6611dbfc46fdfb6de2821c4a62c87befa5200713847eda426e3a501c2",
+    "local_verification_build_tools_metadata_sha256": "084847d70abc41284feee7ea717e7c92eab0d1be05f048c27445a359cfe109d8",
+    "local_verification_zipalign_help_sha256": "71ccda5ec5395e4f00ad892e7386cdaa2559f9b8262a38bfa59bf999f97b5531",
+    "gradle_daemon": false,
+    "max_gradle_workers": 2,
+    "max_jvm_heap_megabytes": 2048,
+    "kotlin_compiler_execution": "in-process",
+    "dependency_resolution": "offline"
+  },
+  "quality_gate_verification_method": "root_connector_receipt",
+  "wrapper_live_github_query": false,
+  "source_proof": {
+    "repository": "jonkryl/home-session",
+    "source_sha": "55fcd6ce6f23054856ee44b37d7c3f51805ac856",
+    "verified_ci_run_id": 37135466866,
+    "source_identity_method": "root_source_manifest_file_hashes",
+    "source_manifest_sha256": "42b35cb17efea9e5f04ce008bb9c83a46e448d8fd6c3387e21467f8753fc0c5c",
+    "verified_source_files": 58,
+    "root_connector_gate_receipt_sha256": "2dbfaf5f273a2adf1bd42c3bcb62faa5017a90768b87295c799f934511ed4c35",
+    "gate_verification_method": "root_connector_receipt",
+    "wrapper_live_github_query": false
+  },
+  "quality_gates": {
+    "repository": "jonkryl/home-session",
+    "source_sha": "55fcd6ce6f23054856ee44b37d7c3f51805ac856",
+    "ci_run_id": 37135466866,
+    "ci_run_url": "https://github.com/jonkryl/home-session/actions/runs/37135466866",
+    "workflow_path": ".github/workflows/android-ci.yml",
+    "status": "completed",
+    "conclusion": "success",
+    "verification_method": "root_connector",
+    "checked_at": "2026-10-03T16:10:25.442Z",
+    "unit_summary": {
+      "tests": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "actual_unit_evidence": "final-ci-unit-verification.json",
+    "jobs": [
+      {
+        "id": 111238993300,
+        "name": "Unit tests and Android lint",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111238993300"
+      },
+      {
+        "id": 111239358071,
+        "name": "Android API 36 journey",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111239358071"
+      },
+      {
+        "id": 111239358113,
+        "name": "Android API 24 journey",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111239358113"
+      },
+      {
+        "id": 111239988930,
+        "name": "All checks passed",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111239988930"
+      }
+    ]
+  },
+  "package": "com.jonkryl.homesession",
+  "version_code": 1,
+  "version_name": "1.0.0",
+  "min_sdk": 24,
+  "target_sdk": 36,
+  "compile_sdk": 36,
+  "upload_certificate_sha256": "32:F3:2A:57:A1:08:96:B1:9C:9E:11:C7:10:9A:9C:AD:DC:69:34:06:21:F9:01:96:2B:D4:D1:78:CD:E4:97:14",
+  "yandex_banner_id": "R-M-20166009-1",
+  "ads_test_mode": false,
+  "debuggable": false,
+  "sdk_automatic_initialization": false,
+  "apk_signature_verified": true,
+  "aab_signature_verified": true,
+  "apk_zipalign_16kb_verified": true,
+  "native_64bit_16kb_verified": true,
+  "release_lint_errors": 0,
+  "release_lint_warnings": 11,
+  "artifacts": [
+    {
+      "name": "home-session-1.0.0-1.apk",
+      "sha256": "3d8447920d013c0e875a7fa8cdb362cff34ae6acbf08de5b7ed9e8b98ed036c0",
+      "bytes": 3833719
+    },
+    {
+      "name": "home-session-1.0.0-1.aab",
+      "sha256": "af259798e59775f97ad3188067d2f5909e8c442bb29a55b57623e3729ab7c267",
+      "bytes": 5819081
+    }
+  ],
+  "github_signed_release_workflow_executed": false,
+  "google_play_production_verified": false,
+  "paid_ads_delivery_verified": false
+}

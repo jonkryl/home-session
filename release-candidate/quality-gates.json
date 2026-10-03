@@ -1,0 +1,48 @@
+{
+  "repository": "jonkryl/home-session",
+  "source_sha": "55fcd6ce6f23054856ee44b37d7c3f51805ac856",
+  "ci_run_id": 37135466866,
+  "ci_run_url": "https://github.com/jonkryl/home-session/actions/runs/37135466866",
+  "workflow_path": ".github/workflows/android-ci.yml",
+  "status": "completed",
+  "conclusion": "success",
+  "verification_method": "root_connector",
+  "checked_at": "2026-10-03T16:10:25.442Z",
+  "unit_summary": {
+    "tests": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_unit_evidence": "final-ci-unit-verification.json",
+  "jobs": [
+    {
+      "id": 111238993300,
+      "name": "Unit tests and Android lint",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111238993300"
+    },
+    {
+      "id": 111239358071,
+      "name": "Android API 36 journey",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111239358071"
+    },
+    {
+      "id": 111239358113,
+      "name": "Android API 24 journey",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111239358113"
+    },
+    {
+      "id": 111239988930,
+      "name": "All checks passed",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/jonkryl/home-session/actions/runs/37135466866/job/111239988930"
+    }
+  ]
+}
