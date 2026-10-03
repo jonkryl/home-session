@@ -1,0 +1,73 @@
+name: Verify local release and publish public prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source commit that passed all Android quality gates
+        required: true
+        type: string
+      verified_ci_run_id:
+        description: Successful Android CI run ID for that source commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: home-session-public-release-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-public-release:
+    name: Verify locally signed APK/AAB and publish public prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    env:
+      HOME_SESSION_SOURCE_SHA: ${{ inputs.source_sha }}
+      HOME_SESSION_CI_RUN_ID: ${{ inputs.verified_ci_run_id }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out public payload and verification helper
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          path: public-payload
+          persist-credentials: false
+      - name: Validate inputs and public payload contract
+        id: inputs
+        run: python3 public-payload/scripts/verify-public-release.py inputs --payload public-payload/release-candidate
+      - name: Check out the immutable approved source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ steps.inputs.outputs.source_sha }}
+          path: approved-source
+          persist-credentials: false
+      - name: Independently verify source bytes and prior CI with 51 passing XML cases
+        run: python3 public-payload/scripts/verify-public-release.py quality --payload public-payload/release-candidate --source approved-source --current public-payload --output verification-output
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up public Android verification tools
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: 'platform-tools build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: 'false'
+      - name: Validate public signatures, production metadata and 16 KB support
+        run: python3 public-payload/scripts/verify-public-release.py artifacts --payload public-payload/release-candidate --source approved-source --current public-payload --output verification-output
+      - name: Save actual public artifact verification and provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: home-session-public-release-verification
+          path: verification-output/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish verified public files and proof as a GitHub prerelease
+        run: python3 public-payload/scripts/verify-public-release.py publish --payload public-payload/release-candidate --output verification-output
