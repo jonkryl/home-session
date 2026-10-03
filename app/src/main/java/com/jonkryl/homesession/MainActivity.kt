@@ -1,6 +1,5 @@
 package com.jonkryl.homesession
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.res.ColorStateList
@@ -27,6 +26,8 @@ import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import com.jonkryl.homesession.ads.BannerController
 import com.jonkryl.homesession.core.ExcludedTask
 import com.jonkryl.homesession.core.ExclusionReason
@@ -48,7 +49,7 @@ import java.util.Date
 import java.util.Locale
 
 /** A suggested plan stays read-only until Start; only individual done marks change history. */
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     private enum class Page { HOME, ROOMS, ROOM_EDITOR, TASKS, TASK_EDITOR, PLAN, SESSION, HISTORY }
 
     private lateinit var repository: HomeRepository
@@ -56,6 +57,9 @@ class MainActivity : Activity() {
     private lateinit var scroll: ScrollView
     private lateinit var content: LinearLayout
     private var page = Page.HOME
+    private val navigationBack = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() { navigateBack() }
+    }
     private var editedRoomId: String? = null
     private var editedTaskId: String? = null
     private var budget = 15
@@ -81,6 +85,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, navigationBack)
         try {
             repository = HomeRepository(this)
         } catch (_: Exception) {
@@ -158,12 +163,7 @@ class MainActivity : Activity() {
         }
     }
 
-    @Suppress("DEPRECATION")
-    override fun onBackPressed() {
-        if (!::repository.isInitialized || !repository.state.onboardingComplete || page == Page.HOME) {
-            super.onBackPressed()
-            return
-        }
+    private fun navigateBack() {
         navigate(when (page) {
             Page.ROOM_EDITOR -> Page.ROOMS
             Page.TASK_EDITOR -> Page.TASKS
@@ -228,6 +228,7 @@ class MainActivity : Activity() {
                 Page.HISTORY -> showHistory()
             }
         }
+        navigationBack.isEnabled = repository.state.onboardingComplete && page != Page.HOME
         scroll.post { scroll.scrollTo(0, oldY) }
     }
 
@@ -615,7 +616,7 @@ class MainActivity : Activity() {
     }
 
     private fun title(value: String, back: Boolean = true) {
-        if (back) content.addView(button(getString(R.string.back), R.id.toolbar_back) { onBackPressed() }, matchWrap())
+        if (back) content.addView(button(getString(R.string.back), R.id.toolbar_back) { onBackPressedDispatcher.onBackPressed() }, matchWrap())
         content.addView(text(value, 29f, forest, true).apply {
             id = R.id.screen_title
             accessibilityHeadingIfSupported()

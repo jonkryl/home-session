@@ -70,6 +70,8 @@ tasks.configureEach {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    implementation("androidx.activity:activity:1.6.0")
+    implementation("androidx.core:core-ktx:1.13.1")
     implementation("com.yandex.android:mobileads:8.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20250517")

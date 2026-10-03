@@ -1,8 +1,8 @@
 {
   "repository": "jonkryl/home-session",
   "package": "com.jonkryl.homesession",
-  "archive_sha256": "9b396adb8544b957eed6a562f8c88a7c99e548c0fc3621a39183cbb2c92a58bf",
-  "file_count": 57,
+  "archive_sha256": "a250262a3e0f8cc2b1accc10ed98e608dd4454592288cfd9bad30b567fb925b5",
+  "file_count": 58,
   "files": [
     {
       "path": ".github/workflows/android-ci.yml",
@@ -31,8 +31,8 @@
     },
     {
       "path": "app/build.gradle.kts",
-      "sha256": "ca59ea669559b476232564b844d56da0b81dcdf9643e073537fae89e78037400",
-      "bytes": 3633
+      "sha256": "ffbf491cbe122dfbbed07f0a260f580f63bd009be7b6f558c532d67eec5dd527",
+      "bytes": 3740
     },
     {
       "path": "app/proguard-rules.pro",
@@ -51,18 +51,18 @@
     },
     {
       "path": "app/src/androidTest/java/com/jonkryl/homesession/RestartAndHistoryTest.kt",
-      "sha256": "4f45ca4e1befdefa6e29299b20c7dbd8c82847d0c92bed84b718018e003aca83",
-      "bytes": 3951
+      "sha256": "6d2bdeae5f70ec86a1b541fb75f7b13c4b208341f5324554d16663c34bd7fea3",
+      "bytes": 4530
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "sha256": "8af6b304be61f8930555603b025f159060fc0ca55c174fb6f1e5211f1b3f1f91",
-      "bytes": 1208
+      "sha256": "e0f93622a1c5f8407d2b980b25ecdf717e7f7fd35431af3ef0cea806737bbd2e",
+      "bytes": 1273
     },
     {
       "path": "app/src/main/java/com/jonkryl/homesession/MainActivity.kt",
-      "sha256": "8d72772461f561541b5591fbaa9bbfb07166a03c5f8c5305d1e7605ea546e05c",
-      "bytes": 36692
+      "sha256": "09d37c46abd8e580dec20809316c4721d1722a1fa5930be6efb744a6a5492e94",
+      "bytes": 36888
     },
     {
       "path": "app/src/main/java/com/jonkryl/homesession/ads/AdRetryPolicy.java",
@@ -148,6 +148,11 @@
       "path": "app/src/main/res/values/themes.xml",
       "sha256": "e0c6593dceec8689829e3509dfdcc3925c3a6e7668d4f5f917582be45f3670e2",
       "bytes": 535
+    },
+    {
+      "path": "app/src/main/res/xml/data_extraction_rules.xml",
+      "sha256": "fc3cdf50e633e56fd3b077483715233287f254eb2aab63e70d40c92af151268e",
+      "bytes": 1143
     },
     {
       "path": "app/src/test/java/com/jonkryl/homesession/ads/AdRetryPolicyTest.java",
@@ -290,5 +295,5 @@
       "bytes": 284
     }
   ],
-  "import_run_url": "https://github.com/jonkryl/home-session/actions/runs/37133479088"
+  "import_run_url": "https://github.com/jonkryl/home-session/actions/runs/37134460901"
 }

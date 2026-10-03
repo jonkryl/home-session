@@ -38,7 +38,14 @@ class RestartAndHistoryTest {
             onView(withContentDescription("Undo: Clear table")).perform(scrollTo(), click())
             assertTrue(savedState().history.isEmpty())
             onView(withContentDescription("Complete: Clear table")).perform(scrollTo(), click())
-            tap(R.id.toolbar_back)
+            val beforeBack = savedState()
+            androidx.test.espresso.Espresso.pressBack()
+            onView(withId(R.id.home_resume)).perform(scrollTo())
+                .check(matches(androidx.test.espresso.matcher.ViewMatchers.isDisplayed()))
+            val afterBack = savedState()
+            assertEquals("System back pauses the exact session", beforeBack.activeSession, afterBack.activeSession)
+            assertEquals("System back preserves deliberate completion marks", beforeBack.history, afterBack.history)
+            assertNull(afterBack.tasks.single { it.title == "Sweep floor" }.lastDone)
             for (language in listOf("en", "ru")) {
                 scenario.onActivity { activity ->
                     val configuration = Configuration(activity.resources.configuration)
