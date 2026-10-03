@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-03",
+  "packageName": "com.jonkryl.homesession",
+  "status": "prepared_not_submitted",
+  "contactEmail": "jonkryl@gmail.com",
+  "privacyPolicyUrl": "https://jonkryl.github.io/home-session/privacy/",
+  "implementation": {
+    "sdk": "com.yandex.android:mobileads:8.5.0",
+    "network": "Yandex only",
+    "format": "Adaptive bottom banner separated from task controls",
+    "automaticInitialization": false,
+    "sdkTestModeInRelease": false,
+    "defaultConsent": false,
+    "choiceBeforeSdkInit": true,
+    "declinePersonalizationStillLoadsAds": true,
+    "locationTracking": false,
+    "appAdAnalyticsReporting": false,
+    "adIdPermissionRemoved": true,
+    "locationPermissions": false,
+    "backup": false,
+    "accounts": false,
+    "cloudSync": false,
+    "purchases": false,
+    "localDataPassedToAds": false,
+    "localData": "Rooms; task title/duration/repeat interval/priority/last completion date; pending session; explicit completion journal. Private atomic app file. Deleting task retains past history snapshots. Clearing app storage removes all records/preferences.",
+    "retryPolicy": "One banner request at a time;45s watchdog; three delayed retries10/30/60s; fresh budget on foreground/network restoration"
+  },
+  "appAccess": {
+    "loginRequired": false,
+    "reviewerCredentialsRequired": false,
+    "instructions": "Select Contextual ads at first launch. Choose starter tasks or Start empty. The 5/15/30 minute buttons preview due tasks and explanations; Start session persists it. Mark actual completions individually. My tasks manages tasks; Rooms manages rooms; History shows explicit completions. Core features work offline."
+  },
+  "ads": {
+    "containsAds": true,
+    "answer": "Yes"
+  },
+  "advertisingId": {
+    "answer": "Yes",
+    "purposes": [
+      "Advertising or marketing"
+    ],
+    "basis": "The exact SDK8.5.0 includes AdvertisingIdClient and direct service fallback API paths. Removing AD_ID is distinct from SDK API usage and residual technical identifiers. Nonzero Google Advertising ID is not claimed for target36 with permission removed."
+  },
+  "dataSafety": {
+    "collectsOrSharesUserData": true,
+    "encryptedInTransit": true,
+    "accountCreation": "No account creation",
+    "deletionRequestMechanism": false,
+    "independentSecurityReview": false,
+    "selectedDataTypes": [
+      "Approximate location",
+      "Device or other IDs"
+    ],
+    "handlingForEachSelectedType": {
+      "collected": true,
+      "shared": true,
+      "ephemeral": false,
+      "required": true,
+      "collectionPurposes": [
+        "Advertising or marketing"
+      ],
+      "sharingPurposes": [
+        "Advertising or marketing"
+      ]
+    },
+    "approximateLocationBasis": "Conservative disclosure for Yandex IP-inferred region during ad requests in either mode. Device GPS is not requested or used.",
+    "deviceIdsBasis": "Conservative disclosure of technical advertising identifiers remaining in ad requests. No app control stops all ad requests; consent changes personalization. AD_ID removal does not justify a blanket no-identifiers claim.",
+    "notCollectedByApp": [
+      "Room names",
+      "Task titles",
+      "Task durations",
+      "Repeat intervals",
+      "Priorities",
+      "Completion dates",
+      "Session check marks",
+      "Local journal",
+      "Emails",
+      "Contacts",
+      "Photos",
+      "Financial information",
+      "Health data"
+    ],
+    "sdkPublishedNoCollection": [
+      "App interactions",
+      "Crash logs",
+      "Diagnostics",
+      "Other app performance data"
+    ],
+    "notes": "Declarations must be saved in the actual Play form against the verified final merged manifest/dependencies. This prepared JSON is not a Console receipt or submitted questionnaire."
+  },
+  "targetAudience": {
+    "ageGroups": [
+      "18 and over"
+    ],
+    "childDirected": false,
+    "familiesProgram": false,
+    "basis": "Household planning utility for adults; original marketing and interface target adult home routines."
+  },
+  "contentRating": {
+    "category": "Other / utility application",
+    "submitted": false,
+    "computedIarcRatings": null,
+    "questionnaire": {
+      "violenceOrBlood": false,
+      "sexualContentOrNudity": false,
+      "horrorOrFear": false,
+      "profanityInDeveloperContent": false,
+      "drugsAlcoholTobacco": false,
+      "gamblingOrContests": false,
+      "purchases": false,
+      "onlineChat": false,
+      "publicUserGeneratedContent": false,
+      "locationSharing": false,
+      "unrestrictedBrowser": false
+    }
+  },
+  "otherDeclarations": {
+    "news": false,
+    "health": false,
+    "financialFeatures": false,
+    "government": false,
+    "realMoneyGambling": false,
+    "inAppPurchases": false
+  },
+  "countries": {
+    "target": "all_available_google_play_countries_and_regions_including_remaining_countries",
+    "savedTrackSelectionVerified": false,
+    "actualCount": null,
+    "preferredTrack": "production_if_console_and_gates_allow"
+  },
+  "sources": [
+    "https://ads.yandex.com/helpcenter/en/dev/android/quick-start",
+    "https://ads.yandex.com/helpcenter/en/dev/android/gdpr",
+    "https://ads.yandex.com/helpcenter/en/dev/android/ad-id",
+    "https://ads.yandex.com/helpcenter/en/dev/android/app-privacy-android",
+    "https://yandex.ru/support/direct/en/efficiency/geotargeting",
+    "https://support.google.com/googleplay/android-developer/answer/10787469?hl=en",
+    "https://yandex.com/legal/international_ads_privacy_policy/en/"
+  ]
+}

@@ -1,0 +1,294 @@
+{
+  "repository": "jonkryl/home-session",
+  "package": "com.jonkryl.homesession",
+  "archive_sha256": "9b396adb8544b957eed6a562f8c88a7c99e548c0fc3621a39183cbb2c92a58bf",
+  "file_count": 57,
+  "files": [
+    {
+      "path": ".github/workflows/android-ci.yml",
+      "sha256": "bfc4046e238ec9cb64a57c58e52f52b6c08c3a5cfbc9fc93a46d0997f26ce297",
+      "bytes": 4359
+    },
+    {
+      "path": ".github/workflows/pages.yml",
+      "sha256": "8c6ad8616eb92830acc6b1192ef81cf6dc55aacddc5b800747f95db59237074d",
+      "bytes": 890
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "63ec4e37dfab4dbf9051a85dd28ffffff9c27a1eb73793430e5539a8960c71e9",
+      "bytes": 4317
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "950c1f3dfbd03755cef17bdbad6b8f198cff0b43c2fcecd07048a48587698ea1",
+      "bytes": 140
+    },
+    {
+      "path": "README.md",
+      "sha256": "37b724d16a7fdb7e604bdc812c11c856228becb5180193121907709642172da9",
+      "bytes": 1863
+    },
+    {
+      "path": "app/build.gradle.kts",
+      "sha256": "ca59ea669559b476232564b844d56da0b81dcdf9643e073537fae89e78037400",
+      "bytes": 3633
+    },
+    {
+      "path": "app/proguard-rules.pro",
+      "sha256": "d4ddce749771814c84e23c2ba4552ddb2fd2bd3c2630c5df9a75e418b27fb939",
+      "bytes": 129
+    },
+    {
+      "path": "app/src/androidTest/java/com/jonkryl/homesession/HomeSessionJourneyTest.kt",
+      "sha256": "10969c5a249c6a1f72b638fb9b1370cbf5a4162b379f4a2564ce2f77c309695b",
+      "bytes": 7338
+    },
+    {
+      "path": "app/src/androidTest/java/com/jonkryl/homesession/LargeFontAccessibilityTest.kt",
+      "sha256": "263c0535b4ea39431112e90e8f88c45b117f8ac5c933697c3e8d0d83cc4ac0b8",
+      "bytes": 3747
+    },
+    {
+      "path": "app/src/androidTest/java/com/jonkryl/homesession/RestartAndHistoryTest.kt",
+      "sha256": "4f45ca4e1befdefa6e29299b20c7dbd8c82847d0c92bed84b718018e003aca83",
+      "bytes": 3951
+    },
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "sha256": "8af6b304be61f8930555603b025f159060fc0ca55c174fb6f1e5211f1b3f1f91",
+      "bytes": 1208
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/MainActivity.kt",
+      "sha256": "8d72772461f561541b5591fbaa9bbfb07166a03c5f8c5305d1e7605ea546e05c",
+      "bytes": 36692
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/ads/AdRetryPolicy.java",
+      "sha256": "53e4fa9fab85567b78bc4bb8495389ef2570d02fe118a823b643357e8d06769a",
+      "bytes": 521
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/ads/BannerController.java",
+      "sha256": "05683e99e30525010cc1e56e1536f6748f84bc680c747b509168179f37413cbd",
+      "bytes": 15286
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/core/HomeJson.kt",
+      "sha256": "47a97f1568c418af214d6723b44ea1c994493a1cbdaaa4cbaf6924e9042a9e6f",
+      "bytes": 6913
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/core/HomeModel.kt",
+      "sha256": "cff5a9016fca02eea4bd01f12af713a82a8417888db0c51c0ad4c051f14303c0",
+      "bytes": 5697
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/core/HomePlanner.kt",
+      "sha256": "c0ead940f0b53fff906ac4924121a5cbb3013fa1b2505b6e329d390462d104c0",
+      "bytes": 3018
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/core/HomeRepository.kt",
+      "sha256": "ab51575341788a3c096d4d0e6d10150dc176bb8608194257d5d32518a3ede79e",
+      "bytes": 2409
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/core/HomeStore.kt",
+      "sha256": "3b3e7a055a7e1e1db7136cb60e1ba37c62c660ca64e7d80cd11803428eea2884",
+      "bytes": 8731
+    },
+    {
+      "path": "app/src/main/java/com/jonkryl/homesession/core/HomeTemplates.kt",
+      "sha256": "0dd6a2d79564bb2a3498b8c66bbd7ba2708fa76676dc997c07cdffc343db350d",
+      "bytes": 1890
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_launcher.xml",
+      "sha256": "f414094c550c5d6fefb2ebd37f564f7bcc7404cb802a7295beef79ffffa84325",
+      "bytes": 695
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "sha256": "beecaea74a39c67c03d85824de86a7ea31be1e8e1a8e89abb2ab8781e019b68f",
+      "bytes": 665
+    },
+    {
+      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "sha256": "2606865e7baec37033f2fb9d1438dc879aa45e596d934e3b1e29c2bf079019cb",
+      "bytes": 253
+    },
+    {
+      "path": "app/src/main/res/mipmap/ic_launcher.xml",
+      "sha256": "f414094c550c5d6fefb2ebd37f564f7bcc7404cb802a7295beef79ffffa84325",
+      "bytes": 695
+    },
+    {
+      "path": "app/src/main/res/values-ru/strings.xml",
+      "sha256": "59f5a98c2e70b29dec3a41db37af77bc6ad1979a8daf6fc07bcd4116025ad7ba",
+      "bytes": 13535
+    },
+    {
+      "path": "app/src/main/res/values/colors.xml",
+      "sha256": "5f6ee9c9aaf4d38112ed559a2b6a84ba5bec0172a66dad2c6527c8e0adb09da0",
+      "bytes": 303
+    },
+    {
+      "path": "app/src/main/res/values/ids.xml",
+      "sha256": "39e41b2e169ca39f6d735b217473d6171db3404158ec28ca25fcec312bd17516",
+      "bytes": 2229
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "sha256": "d6b281ff61a524c530fb56da450e9bddf73469967e5c96cdffa10e510ae7891d",
+      "bytes": 9307
+    },
+    {
+      "path": "app/src/main/res/values/themes.xml",
+      "sha256": "e0c6593dceec8689829e3509dfdcc3925c3a6e7668d4f5f917582be45f3670e2",
+      "bytes": 535
+    },
+    {
+      "path": "app/src/test/java/com/jonkryl/homesession/ads/AdRetryPolicyTest.java",
+      "sha256": "4be9b4d0c85dde8c5cc230231140008048a4c8cd8b324d5b309c0926a0abb1ee",
+      "bytes": 840
+    },
+    {
+      "path": "app/src/test/java/com/jonkryl/homesession/core/HomeJsonTest.kt",
+      "sha256": "53e164c41484aeb9ac529464757221490fe25307daa4eecfa2fb045ee1cda9a8",
+      "bytes": 3721
+    },
+    {
+      "path": "app/src/test/java/com/jonkryl/homesession/core/HomePlannerTest.kt",
+      "sha256": "9bdf4498eec65ce2547bbce300d2297f5235de0b1644051e09d9bd4982a29ffa",
+      "bytes": 5944
+    },
+    {
+      "path": "app/src/test/java/com/jonkryl/homesession/core/HomeStoreTest.kt",
+      "sha256": "7d69c97656a87c80d703f3105c5a65aaad3de8a3fbd7da8aa4f0037de705482b",
+      "bytes": 14748
+    },
+    {
+      "path": "app/src/test/java/com/jonkryl/homesession/core/HomeTestSupport.kt",
+      "sha256": "fa2a3f250f15798e9d1a7146d2b72163bf54d48311d64865dba90f37050cd85a",
+      "bytes": 1127
+    },
+    {
+      "path": "build.gradle.kts",
+      "sha256": "5b59a737f79aff3069b158e3716c6c89df8d01d1f43a9b369058d20e564f4dce",
+      "bytes": 143
+    },
+    {
+      "path": "docs/index.html",
+      "sha256": "389eefd4f49b5ffc9ff04d75a5d998f0cab8bc859e46fa076c6ce75a1fe94239",
+      "bytes": 1713
+    },
+    {
+      "path": "docs/planner.md",
+      "sha256": "7029057d2d111771696a3c24b4ae83355438a8f84745d67684689377905855fc",
+      "bytes": 2938
+    },
+    {
+      "path": "docs/play-declarations.json",
+      "sha256": "e83101fb259b22133c19d2efa97346e4c34297f04c10b670dfd9820e20ff805b",
+      "bytes": 5527
+    },
+    {
+      "path": "docs/privacy/index.html",
+      "sha256": "9ec974e06094a141c97f4a946cbf2fa74202a2c9ba63c40909890fa7b90e5db0",
+      "bytes": 8186
+    },
+    {
+      "path": "docs/store-listing.json",
+      "sha256": "60c5cc5dd9da0f7fcc63bf82570e4d287c7ccca4f3298282e537b297e19ec300",
+      "bytes": 4515
+    },
+    {
+      "path": "docs/style.css",
+      "sha256": "3ff9b6da06d7299f9e1fb7330de2643edb86b17c3e90bee8804d9edbc54aef0e",
+      "bytes": 413
+    },
+    {
+      "path": "gradle.properties",
+      "sha256": "454727193bc62b9188c95da51d0827bfc2df189b0ca8baf4d29e4351c28e03ee",
+      "bytes": 233
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.jar",
+      "sha256": "81a82aaea5abcc8ff68b3dfcb58b3c3c429378efd98e7433460610fecd7ae45f",
+      "bytes": 43705
+    },
+    {
+      "path": "gradle/wrapper/gradle-wrapper.properties",
+      "sha256": "3b6b8df392b92f86332d907707f3d952a32c8d6e1fedabafe2b5ec3d933a78c4",
+      "bytes": 338
+    },
+    {
+      "path": "gradlew",
+      "sha256": "c76f16038b4e70b84ed0b3b9e08e82a8ecaf66ec0efdfdecdece92520fa3cecb",
+      "bytes": 8774
+    },
+    {
+      "path": "gradlew.bat",
+      "sha256": "0f3ed8f03b50934cb8c48b15a470d5c20a30a5385825e48b55bcc8ea3d8f8e18",
+      "bytes": 2894
+    },
+    {
+      "path": "scripts/check-instrumentation.py",
+      "sha256": "14331254cb614e828f20d334b567e44fd64b3877505c64749a7370de8913949a",
+      "bytes": 484
+    },
+    {
+      "path": "scripts/device-journey.sh",
+      "sha256": "258d90d63eec90bdd959b1c81ce39599487d593c8da2f82c57c645a114afa1cc",
+      "bytes": 2912
+    },
+    {
+      "path": "scripts/record-release.py",
+      "sha256": "b999dc63e3ad300dcf119cf30f9f183250dd22bb828874b14c26a2d596597741",
+      "bytes": 3627
+    },
+    {
+      "path": "scripts/release-notes.md",
+      "sha256": "36be0740638366dd11eac58d2804c478224fbd8e7667f3eb4b2c3aaed28f99dc",
+      "bytes": 367
+    },
+    {
+      "path": "scripts/verify-certificate.py",
+      "sha256": "3292fc06466203e57dcd0b7e456b23692e82717abbacdb7c8b32d65dfa7989e1",
+      "bytes": 565
+    },
+    {
+      "path": "scripts/verify-ci-run.py",
+      "sha256": "0a0bbc86e8a96d1003bfb8a97fdcdb41bdaef1aee193247257b6bfaf1470a538",
+      "bytes": 1809
+    },
+    {
+      "path": "scripts/verify-device-proof.py",
+      "sha256": "ab833df84f6666f8a0579f542fcf98886554519f26e97ed249a108578d9c13cf",
+      "bytes": 1458
+    },
+    {
+      "path": "scripts/verify-elf-alignment.py",
+      "sha256": "3ff07b1701080822f22d4f51d0ca9e7b4ca5c435311ac7219940bfdd1700a851",
+      "bytes": 1224
+    },
+    {
+      "path": "scripts/verify-release.sh",
+      "sha256": "40ecf19428899f7b25ede58ad0ad3de49590316f570fe501300c770c5e3d0439",
+      "bytes": 2565
+    },
+    {
+      "path": "scripts/verify-unit-results.py",
+      "sha256": "2dd9742b82778d227aea87b7b01216da9a3184d4f9fff0ed731c0a8a194c1dc8",
+      "bytes": 877
+    },
+    {
+      "path": "settings.gradle.kts",
+      "sha256": "ffac5f66d687b953c159f51e89be9a53b1253c27614f3be173e7e0cead3eec26",
+      "bytes": 284
+    }
+  ],
+  "import_run_url": "https://github.com/jonkryl/home-session/actions/runs/37133479088"
+}

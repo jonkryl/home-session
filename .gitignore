@@ -1,0 +1,13 @@
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+*.jks
+*.keystore
+*.p12
+signing.properties
+ci-artifacts/
+ci-apks/
+release-output/
+.DS_Store

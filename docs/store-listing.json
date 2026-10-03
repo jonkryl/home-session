@@ -1,0 +1,16 @@
+{
+  "package": "com.jonkryl.homesession",
+  "contact": "jonkryl@gmail.com",
+  "category": "House & Home",
+  "defaultLanguage": "ru-RU",
+  "ru-RU": {
+    "title": "Дом за 15 минут",
+    "shortDescription": "Подберите уборку на 5, 15 или 30 минут. Комнаты, задачи и журнал на устройстве.",
+    "fullDescription": "Сколько времени есть на уборку сегодня? Выберите 5, 15 или 30 минут — «Дом за 15 минут» предложит дела, которым уже пора уделить внимание. Сумма длительностей не превышает выбранный лимит.\n\nКаждая задача имеет своё название, комнату, длительность, интервал повторения, приоритет и дату последнего выполнения. Все параметры можно изменить. Начните с наших простых примеров для кухни, ванной и жилой комнаты либо создайте пустой план.\n\nПеред началом видно, какие задачи включены и почему. Слишком долгие задачи показаны отдельно. Если подходящих задач нет, приложение объяснит результат. Свежие задачи не добавляются только ради заполнения времени.\n\nОтмечайте выполненные пункты по одному. Ошибочную отметку можно отменить, пока сессия открыта. Незавершённая уборка сохраняется после перезапуска. Завершение или отмена сессии не отмечает оставшиеся задачи выполненными. В журнал попадают только ваши реальные отметки с датами.\n\nКомнаты и задачи можно добавлять, изменять и удалять. Фильтры «Пора», «Скоро» и «Свежие» помогают увидеть состояние домашнего плана.\n\nОсновные функции работают без интернета и аккаунта. Данные хранятся на вашем устройстве; облачной или семейной синхронизации нет. Интерфейс доступен на русском и английском и учитывает увеличенный шрифт. Приложение содержит рекламу Яндекса; выбор персонализации доступен в настройках приватности.\n\nДлительности — ваши оценки времени, а не гарантия результата уборки. Поддержка: jonkryl@gmail.com."
+  },
+  "en-US": {
+    "title": "Home in 15 Minutes",
+    "shortDescription": "Plan a 5, 15 or 30 minute clean. Editable chores, rooms and local history.",
+    "fullDescription": "How much time do you have to clean today? Choose 5, 15 or 30 minutes. Home in 15 Minutes suggests chores that are due and keeps the total estimated duration within your chosen budget.\n\nEdit each chore's title, room, duration, repeat interval, priority and last-completion date. Start with our simple kitchen, bathroom and living-room examples or create an empty plan.\n\nBefore starting, see which tasks were chosen and why. Tasks longer than your budget are shown separately. If no due task fits, the app tells you. Fresh tasks are not added just to fill the session.\n\nMark completed items individually. Undo a mistaken mark while the session is open. Resume an unfinished session after restarting. Finishing or cancelling does not mark pending tasks done. Your journal contains only explicit completions and their dates.\n\nAdd, edit and delete rooms and tasks. Due, Soon and Fresh filters show what needs attention.\n\nCore features work offline without an account. Records stay on your device; there is no cloud or family sync. The app supports Russian, English and larger system text. It contains Yandex advertising, with a saved personalization choice in Ad privacy.\n\nDurations are your time estimates, not a guarantee of the cleaning result. Support: jonkryl@gmail.com."
+  }
+}
