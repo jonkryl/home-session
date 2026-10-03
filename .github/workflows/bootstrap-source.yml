@@ -1,0 +1,95 @@
+name: Import verified Home Session source
+
+on:
+  push:
+    branches: [main]
+    paths: [source-bootstrap.tar.gz]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: home-session-source-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.repository == 'jonkryl/home-session'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HOME_SESSION_SOURCE_SHA: 9b396adb8544b957eed6a562f8c88a7c99e548c0fc3621a39183cbb2c92a58bf
+      HOME_SESSION_SOURCE_ARCHIVE: source-bootstrap.tar.gz
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Verify source archive, existing CI workflows and import safe regular files
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          archive = Path(os.environ['HOME_SESSION_SOURCE_ARCHIVE'])
+          expected = os.environ['HOME_SESSION_SOURCE_SHA']
+          if not re.fullmatch(r'[0-9a-f]{64}', expected):
+              raise SystemExit('Save a fixed archive SHA-256 in this workflow before importing')
+          if hashlib.sha256(archive.read_bytes()).hexdigest() != expected:
+              raise SystemExit('Archive differs from the locally reviewed Home Session source')
+          root = Path.cwd().resolve()
+          inventory = []
+          with tarfile.open(archive, 'r:gz') as source:
+              members = source.getmembers()
+              if len(members) > 10000 or sum(member.size for member in members) > 200_000_000:
+                  raise SystemExit('Archive exceeds the expected source size')
+              seen = set()
+              for member in members:
+                  relative = PurePosixPath(member.name)
+                  if not relative.parts or relative.is_absolute() or '..' in relative.parts or '.git' in relative.parts or member.name in seen:
+                      raise SystemExit(f'Unsafe or duplicate source path: {member.name}')
+                  seen.add(member.name)
+                  if not member.isfile():
+                      raise SystemExit(f'Only regular files are allowed: {member.name}')
+                  destination = root.joinpath(*relative.parts).resolve()
+                  if root not in destination.parents:
+                      raise SystemExit(f'Source path escapes the checkout: {member.name}')
+                  content = source.extractfile(member).read()
+                  inventory.append({'path': member.name, 'sha256': hashlib.sha256(content).hexdigest(), 'bytes': len(content)})
+                  if relative.parts[0] == '.github':
+                      # GITHUB_TOKEN cannot edit workflows. The owner uploads these through the UI first.
+                      if not destination.is_file() or destination.read_bytes() != content:
+                          raise SystemExit(f'Upload the exact permanent workflow through GitHub UI first: {member.name}')
+                      continue
+                  destination.parent.mkdir(parents=True, exist_ok=True)
+                  destination.write_bytes(content)
+                  destination.chmod(0o755 if member.mode & 0o111 else 0o644)
+          required = ['gradlew', 'gradle/wrapper/gradle-wrapper.jar', 'app/build.gradle.kts',
+                      'app/src/main/java/com/jonkryl/homesession/MainActivity.kt',
+                      '.github/workflows/android-ci.yml', '.github/workflows/release.yml', '.github/workflows/pages.yml']
+          if not all(Path(path).is_file() for path in required):
+              raise SystemExit('Source does not contain the complete Home Session Android project')
+          Path('source-import-receipt.json').write_text(json.dumps({
+              'repository': 'jonkryl/home-session', 'package': 'com.jonkryl.homesession',
+              'archive_sha256': expected, 'file_count': len(inventory), 'files': inventory,
+              'import_run_url': f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }, indent=2) + '\n')
+          archive.unlink()
+          PY
+      - name: Commit the reviewed original native source to main
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --all
+          git commit -m "Import verified Home Session source (${HOME_SESSION_SOURCE_SHA})"
+          git push origin HEAD:main
+      - name: Record import provenance
+        run: |
+          printf 'Imported Home Session source SHA-256: `%s`\n\n' "$HOME_SESSION_SOURCE_SHA" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Source commit: `%s`\n\n' "$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Dispatch Android CI for this source commit; token pushes do not start workflows.\n' >> "$GITHUB_STEP_SUMMARY"
