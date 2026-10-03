@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      HOME_SESSION_SOURCE_SHA: 9b396adb8544b957eed6a562f8c88a7c99e548c0fc3621a39183cbb2c92a58bf
+      HOME_SESSION_SOURCE_SHA: a250262a3e0f8cc2b1accc10ed98e608dd4454592288cfd9bad30b567fb925b5
       HOME_SESSION_SOURCE_ARCHIVE: source-bootstrap.tar.gz
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
