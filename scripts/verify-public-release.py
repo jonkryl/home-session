@@ -8,6 +8,7 @@ import shutil
 import struct
 import subprocess
 import tempfile
+import time
 import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
@@ -31,6 +32,13 @@ PAYLOAD_FILES = {"manifest.json", "source-manifest.json", "publiccertificate.pem
 SOURCE_INFRASTRUCTURE = {".github/workflows/bootstrap-source.yml", "source-import-receipt.json"}
 VERIFICATION_ADDITIONS = {".github/workflows/verify-local-release.yml", "scripts/verify-public-release.py"} | {
     f"release-candidate/{name}" for name in PAYLOAD_FILES}
+TEMPLATE_TASK_TITLES = {
+    "ru": {"Освободить и протереть столешницу", "Вымыть раковину", "Проверить продукты в холодильнике",
+           "Протереть раковину и кран", "Освежить зеркало", "Почистить душевую зону", "Вернуть вещи на места",
+           "Убрать пыль с доступных поверхностей", "Пропылесосить свободный пол"},
+    "en": {"Clear and wipe the worktop", "Wash the sink", "Check food in the fridge", "Wipe the basin and tap",
+           "Freshen the mirror", "Clean the shower area", "Put loose items back", "Dust reachable surfaces",
+           "Vacuum the clear floor"}}
 
 
 def require(condition, message):
@@ -117,6 +125,9 @@ def contract(payload):
     require(local_proof.get("method") == "local" and local_proof.get("source_sha") == source_sha and
             local_proof.get("github_signed_release_workflow_executed") is False and local_proof.get("release_run_url") is None,
             "The public build receipt must truthfully describe local signing")
+    environment = local_proof.get("build_environment")
+    require(isinstance(environment, dict) and environment and manifest.get("build_environment") == environment,
+            "Manifest and local receipt must declare the same local build environment")
     local_ci = read_json(regular_file(payload, "quality-gates.json"))
     require(local_ci.get("source_sha") == source_sha and local_ci.get("ci_run_id") == int(ci_run_id) and
             local_ci.get("conclusion") == "success", "The local receipt must refer to the same completed CI gates")
@@ -341,6 +352,8 @@ def verify_artifacts(payload, source, current, output, manifest):
                   "verification_run_url": f"https://github.com/{REPOSITORY}/actions/runs/{run_id}",
                   "verification_commit_sha": current_sha, "verified_at": datetime.now(timezone.utc).isoformat(),
                   "source_proof": source_proof, "quality_gates": quality,
+                  "local_build_environment": manifest["build_environment"],
+                  "local_build_environment_evidence": "declared_by_local_build_receipt_not_independently_reproduced",
                   "package": PACKAGE, "version_code": 1, "version_name": "1.0.0", "min_sdk": 24, "target_sdk": 36, "compile_sdk": 36,
                   "upload_certificate_sha256": CERTIFICATE, "banner_id": BANNER,
                   "yandex_sdk_declared_in_approved_source": "8.5.0", "binary_source_reproducibility_claimed": False,
@@ -384,12 +397,288 @@ def publish(output):
     print(release["url"])
 
 
+def ui_bounds(node):
+    match = re.fullmatch(r"\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]", node.get("bounds", ""))
+    require(match is not None, "UI node has invalid bounds")
+    return tuple(int(value) for value in match.groups())
+
+
+def offline_network_state(airplane, setting, wifi, mobile, connectivity):
+    return (airplane.strip() == "enabled" and setting.strip() == "1" and
+            wifi.strip() == "0" and mobile.strip() == "0" and
+            re.search(r"^\s*Active default network:\s*none\s*$", connectivity, re.MULTILINE) is not None)
+
+
+class ReleaseUiCapture:
+    """Use the installed release UI only: native hierarchy, input taps/swipes and raw screencap."""
+    def __init__(self, output):
+        self.output = output
+        self.adb = Path(os.environ["ANDROID_HOME"]) / "platform-tools" / "adb"
+        self.actions, self.commands, self.images, self.network_checks = [], [], [], []
+        self.locale = None
+        self.screen = (0, 0)
+        self.deadline = time.monotonic() + 15 * 60
+
+    def command(self, *arguments, timeout=20):
+        start = time.monotonic()
+        remaining = self.deadline - start
+        require(remaining > 0, "Release UI capture exceeded its 15-minute command deadline")
+        result = subprocess.run([str(self.adb), *map(str, arguments)], check=False,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=min(timeout, remaining))
+        self.commands.append({"arguments": list(map(str, arguments)), "returncode": result.returncode,
+                              "elapsed_seconds": round(time.monotonic() - start, 3)})
+        require(result.returncode == 0, "ADB capture command failed: " + " ".join(map(str, arguments)) +
+                "\n" + result.stderr.decode("utf-8", errors="replace")[-2000:])
+        return result.stdout
+
+    def shell(self, *arguments, timeout=20):
+        return self.command("shell", *arguments, timeout=timeout).decode("utf-8", errors="replace")
+
+    def network(self, label, wait=False):
+        # AOSP API 36 shell commands; only emulator radios change, never the app or its ad views.
+        # https://android.googlesource.com/platform/packages/modules/Connectivity/+/refs/heads/main/service/src/com/android/server/ConnectivityService.java
+        attempts = 20 if wait else 1
+        for attempt in range(attempts):
+            state = {"airplane_mode": self.shell("cmd", "connectivity", "airplane-mode"),
+                     "airplane_setting": self.shell("settings", "get", "global", "airplane_mode_on"),
+                     "wifi_setting": self.shell("settings", "get", "global", "wifi_on"),
+                     "mobile_data_setting": self.shell("settings", "get", "global", "mobile_data"),
+                     "connectivity": self.shell("dumpsys", "connectivity")}
+            if offline_network_state(*state.values()):
+                state["label"] = label
+                state["checked_at"] = datetime.now(timezone.utc).isoformat()
+                self.network_checks.append(state)
+                write_json(self.output / "offline-network-evidence.json", self.network_checks)
+                return
+            if attempt + 1 < attempts:
+                time.sleep(0.5)
+        write_json(self.output / "offline-network-failure.json", state)
+        require(False, "API 36 radios/default network are not verified offline; app launch is forbidden")
+
+    def dump(self):
+        self.shell("uiautomator", "dump", "--compressed", "/sdcard/home-session-release-ui.xml", timeout=20)
+        xml = self.command("exec-out", "cat", "/sdcard/home-session-release-ui.xml")
+        return xml, ET.fromstring(xml)
+
+    @staticmethod
+    def signature(root):
+        # System clock changes do not indicate app movement. App text and bounds must settle.
+        return tuple(tuple(sorted(node.attrib.items())) for node in root.iter("node")
+                     if node.get("package") == PACKAGE)
+
+    def settled(self):
+        previous = None
+        for _ in range(8):
+            xml, root = self.dump()
+            signature = self.signature(root)
+            if signature and signature == previous:
+                time.sleep(0.35)
+                return xml, root
+            previous = signature
+            time.sleep(0.35)
+        require(False, "Release app hierarchy did not settle within eight bounded dumps")
+
+    def visible(self, node):
+        left, top, right, bottom = ui_bounds(node)
+        width, height = self.screen
+        return left >= 0 and top >= 0 and right <= width and bottom <= height and right > left and bottom > top
+
+    def matches(self, root, resource=None, text=None):
+        return [node for node in root.iter("node") if node.get("package") == PACKAGE and
+                (resource is None or node.get("resource-id") == f"{PACKAGE}:id/{resource}") and
+                (text is None or node.get("text") == text) and self.visible(node)]
+
+    def scroll(self, root, direction):
+        nodes = [node for node in root.iter("node") if node.get("package") == PACKAGE and
+                 node.get("scrollable") == "true" and self.visible(node)]
+        if not nodes:
+            return False
+        left, top, right, bottom = ui_bounds(nodes[0])
+        x = (left + right) // 2
+        low, high = top + (bottom - top) * 3 // 4, top + (bottom - top) // 4
+        start, end = (low, high) if direction == "down" else (high, low)
+        self.actions.append({"action": "swipe", "locale": self.locale, "direction": direction,
+                             "container_bounds": nodes[0].get("bounds"), "from": [x, start], "to": [x, end]})
+        self.shell("input", "swipe", x, start, x, end, 450)
+        return True
+
+    def find(self, resource=None, text=None, direction="down"):
+        for _ in range(14):
+            xml, root = self.settled()
+            nodes = self.matches(root, resource, text)
+            if nodes:
+                return xml, root, nodes[0]
+            require(self.scroll(root, direction), f"UI target missing with no scrollable container: {resource or text}")
+        require(False, f"Visible release UI target missing: {resource or text}")
+
+    def tap(self, resource=None, text=None, direction="down"):
+        xml, root, node = self.find(resource, text, direction)
+        require(node.get("enabled") == "true" and node.get("clickable") == "true", "Release control is not enabled/clickable")
+        name = f"action-{len(self.actions):03d}-{self.locale}"
+        (self.output / f"{name}.xml").write_bytes(xml)
+        left, top, right, bottom = ui_bounds(node)
+        point = [(left + right) // 2, (top + bottom) // 2]
+        self.actions.append({"action": "tap", "locale": self.locale, "resource_id": node.get("resource-id"),
+                             "text": node.get("text"), "content_description": node.get("content-desc"),
+                             "bounds": node.get("bounds"), "point": point, "hierarchy": f"{name}.xml"})
+        self.shell("input", "tap", *point)
+        return node
+
+    def top(self):
+        previous = None
+        for _ in range(14):
+            _, root = self.settled()
+            signature = self.signature(root)
+            if signature == previous:
+                return
+            previous = signature
+            if not self.scroll(root, "up"):
+                return
+        require(False, "Native release screen did not reach its top")
+
+    def page(self, title):
+        _, root = self.settled()
+        require(self.matches(root, "screen_title", title), f"Actual release page/locale mismatch: {title}")
+
+    def capture(self, name, title):
+        self.top()
+        self.page(title)
+        self.network(name)
+        xml, root = self.settled()
+        require(self.matches(root, "ad_label"), "The app's ordinary ad footer must remain visible in release captures")
+        require(not any("demo ad" in (node.get("text", "") + node.get("content-desc", "")).lower()
+                        for node in root.iter("node")), "A demo ad must not appear in release evidence")
+        image = self.command("exec-out", "screencap", "-p")
+        require(image.startswith(b"\x89PNG\r\n\x1a\n"), "Device screencap is not a raw PNG")
+        (self.output / f"{name}.png").write_bytes(image)
+        (self.output / f"{name}.xml").write_bytes(xml)
+        self.images.append({"locale": self.locale, "page_title": title, "png": f"{name}.png",
+                            "png_sha256": sha256(image), "hierarchy": f"{name}.xml", "hierarchy_sha256": sha256(xml)})
+
+
+def capture_release_ui(payload, verified, output, manifest):
+    require(verified is not None, "Successful public artifact verification proof is required before screenshots")
+    proof = read_json(verified)
+    run_url = f"https://github.com/{REPOSITORY}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+    require(proof.get("verification_run_url") == run_url and proof.get("verification_commit_sha") == os.environ["GITHUB_SHA"] and
+            proof.get("source_sha") == manifest["source_sha"] and proof.get("artifacts") == manifest["artifacts"] and
+            proof.get("upload_certificate_sha256") == CERTIFICATE and proof.get("banner_id") == BANNER and
+            proof.get("build_method") == "local" and proof.get("built_signed_in_github_actions") is False and
+            isinstance(proof.get("gates"), dict) and proof["gates"] and all(value is True for value in proof["gates"].values()),
+            "Screenshots must use this run's independently verified public release APK")
+    capture = ReleaseUiCapture(output)
+    completed, status = [], "failed"
+    try:
+        capture.command("wait-for-device", timeout=60)
+        require(capture.shell("getprop", "ro.build.version.sdk").strip() == "36", "Release screenshots require real API 36")
+        capture.shell("cmd", "connectivity", "airplane-mode", "enable")
+        capture.shell("svc", "wifi", "disable")
+        # The base setting and svc pair also covers a stale/null subscription-specific setting.
+        # https://android.googlesource.com/platform/tools/test/connectivity/+/main/acts/framework/acts/controllers/cellular_lib/AndroidCellularDut.py
+        capture.shell("settings", "put", "global", "mobile_data", "0")
+        capture.shell("svc", "data", "disable")
+        capture.network("before-install-and-first-launch", wait=True)
+        for setting, value in (("screen_off_timeout", "1800000"), ("font_scale", "1.0")):
+            capture.shell("settings", "put", "system", setting, value)
+        capture.shell("svc", "power", "stayon", "true")
+        capture.shell("input", "keyevent", "224")
+        capture.shell("wm", "dismiss-keyguard")
+        size = capture.shell("wm", "size")
+        dimensions = re.findall(r"(?:Physical|Override) size: (\d+)x(\d+)", size)
+        require(dimensions, "Actual display size is missing")
+        capture.screen = tuple(map(int, dimensions[-1]))
+        apk = regular_file(payload, manifest["artifacts"]["apk"]["path"])
+        require(sha256(apk.read_bytes()) == manifest["artifacts"]["apk"]["sha256"], "APK changed before installation")
+        require("Success" in capture.command("install", "-r", apk, timeout=120).decode(), "Release APK installation failed")
+        package = capture.shell("dumpsys", "package", PACKAGE)
+        (output / "installed-release-package.txt").write_text(package)
+        require(re.search(r"versionCode=1\s", package) and "versionName=1.0.0" in package and
+                re.search(r"(?:pkgFlags|flags)=\[", package) and not re.search(r"\bDEBUGGABLE\b", package),
+                "Installed release must have version 1.0.0 (1) and no DEBUGGABLE flag")
+        installed_paths = capture.shell("pm", "path", PACKAGE).strip().splitlines()
+        require(len(installed_paths) == 1 and re.fullmatch(r"package:/data/app/[A-Za-z0-9_+=~/.-]+/base\.apk", installed_paths[0]),
+                "Unexpected installed release APK path")
+        installed_hash = capture.shell("sha256sum", installed_paths[0][len("package:"):]).split()[0]
+        require(installed_hash == manifest["artifacts"]["apk"]["sha256"], "Installed APK bytes differ from verified public APK")
+        write_json(output / "installed-release-proof.json", {"apk_sha256": installed_hash, "debuggable": False,
+                   "upload_certificate_sha256": CERTIFICATE, "signature_evidence": "same_APK_bytes_as_independent_prior_job"})
+        for language, labels in (("ru", ("Дом за 15 минут", "Предложенная сессия", "Ваша сессия уборки", "Журнал выполнения", "Контекстная реклама", "Выполнить: ")),
+                                 ("en", ("Home in 15 Minutes", "Your suggested session", "Your cleaning session", "Completion journal", "Contextual ads", "Complete: "))):
+            capture.locale = language
+            home, plan, session, history, contextual, completion_prefix = labels
+            require("Success" in capture.shell("pm", "clear", PACKAGE), "Cannot clear real app data between languages")
+            # API 36 LocaleManagerShellCommand documents this argument order and language-tag form.
+            # https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-16.0.0_r4/services/core/java/com/android/server/locales/LocaleManagerShellCommand.java
+            capture.shell("cmd", "locale", "set-app-locales", PACKAGE, "--user", "0", "--locales", language)
+            locale_result = capture.shell("cmd", "locale", "get-app-locales", PACKAGE, "--user", "0")
+            (output / f"{language}-actual-app-locales.txt").write_text(locale_result)
+            require(re.search(r"\[" + language + r"\]", locale_result), "Android did not apply the requested app locale")
+            capture.shell("am", "force-stop", PACKAGE)
+            capture.network(f"{language}-before-first-launch")
+            launch = capture.shell("am", "start", "-W", "-n", f"{PACKAGE}/.MainActivity", timeout=30)
+            (output / f"{language}-fresh-process-launch.txt").write_text(launch)
+            require("Status: ok" in launch, "Release activity did not launch successfully")
+            capture.tap(text=contextual)
+            capture.tap(resource="onboarding_templates")
+            capture.capture(f"{language}-01-home", home)
+            capture.tap(resource="home_pick_15")
+            capture.capture(f"{language}-02-plan-15", plan)
+            capture.tap(resource="plan_start")
+            capture.capture(f"{language}-03-session", session)
+            node = capture.tap(resource="session_complete")
+            description = node.get("content-desc", "")
+            require(description.startswith(completion_prefix), "Actual task completion description is missing")
+            task_title = description[len(completion_prefix):]
+            require(task_title in TEMPLATE_TASK_TITLES[language], "Actual completed task must be an original template in the requested language")
+            capture.find(resource="session_undo", direction="up")
+            capture.capture(f"{language}-04-session-completed", session)
+            capture.tap(resource="toolbar_back", direction="up")
+            capture.page(home)
+            capture.tap(resource="home_history")
+            capture.top()
+            capture.page(history)
+            _, root = capture.settled()
+            require(capture.matches(root, text=task_title), "Explicitly completed task is missing from real journal")
+            capture.capture(f"{language}-05-history", history)
+            completed.append({"locale": language, "task_title": task_title, "completion_method": "visible_session_complete_button",
+                              "templates_method": "visible_original_examples_button", "ad_choice": "contextual"})
+        status = "success"
+    except BaseException:
+        # Preserve the actual active screen before any teardown, including a failed native UI step.
+        capture.deadline = time.monotonic() + 45
+        try:
+            (output / "failure-screen.png").write_bytes(capture.command("exec-out", "screencap", "-p"))
+            xml, _ = capture.dump()
+            (output / "failure-screen.xml").write_bytes(xml)
+        except BaseException:
+            pass
+        raise
+    finally:
+        write_json(output / "ui-actions.json", capture.actions)
+        write_json(output / "adb-command-events.json", capture.commands)
+        write_json(output / "release-ui-capture-receipt.json", {
+            "status": status, "repository": REPOSITORY, "source_sha": manifest["source_sha"],
+            "verification_run_url": run_url, "verification_commit_sha": os.environ["GITHUB_SHA"],
+            "artifact_verification_provenance_sha256": sha256(verified.read_bytes()),
+            "build_method": "local", "capture_method": "github_actions_API36_native_UI_and_raw_adb_screencap",
+            "apk_sha256": manifest["artifacts"]["apk"]["sha256"], "banner_id_in_verified_release": BANNER,
+            "offline_before_first_app_launch_and_at_each_capture": True if status == "success" else None,
+            "device_connectivity_only_disabled": True, "app_ad_code_or_pixels_modified": False,
+            "persisted_fixtures_injected": False, "images_edited": False, "screen_size": capture.screen,
+            "local_build_environment": manifest["build_environment"],
+            "local_build_environment_evidence": "declared_by_local_build_receipt_not_independently_reproduced",
+            "locales": completed, "screenshots": capture.images,
+            "already_green_unit_and_device_cases_repeated": False,
+            "google_play_production_verified": False, "paid_ads_delivery_verified": False})
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("phase", choices=("inputs", "quality", "artifacts", "publish"))
+    parser.add_argument("phase", choices=("inputs", "quality", "artifacts", "publish", "screenshots"))
     parser.add_argument("--payload", type=Path, required=True)
     parser.add_argument("--source", type=Path)
     parser.add_argument("--current", type=Path)
+    parser.add_argument("--verified", type=Path)
     parser.add_argument("--output", type=Path, default=Path("verification-output"))
     args = parser.parse_args()
     manifest = contract(args.payload)
@@ -405,6 +694,8 @@ def main():
     elif args.phase == "artifacts":
         require(args.source is not None and args.current is not None, "Source and current checkouts are required")
         verify_artifacts(args.payload, args.source, args.current, args.output, manifest)
+    elif args.phase == "screenshots":
+        capture_release_ui(args.payload, args.verified, args.output, manifest)
     else:
         publish(args.output)
 
