@@ -5,6 +5,7 @@ import android.util.AtomicFile
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.time.Clock
 import java.time.LocalDate
 
 /** Private app storage, backed by an atomic replace; no storage or network permission is required. */
@@ -27,8 +28,8 @@ class AtomicJsonHomePersistence(private val file: AtomicFile) : HomePersistence 
     }
 }
 
-class HomeRepository(context: Context) {
-    private val store = HomeStore(AtomicJsonHomePersistence(AtomicFile(File(context.applicationContext.filesDir, FILE_NAME))))
+class HomeRepository(context: Context, clock: Clock? = null) {
+    private val store = HomeStore(AtomicJsonHomePersistence(AtomicFile(File(context.applicationContext.filesDir, FILE_NAME))), clock)
     val state: HomeState get() = store.state
     val today: LocalDate get() = store.today
     fun initializeEmpty() = store.initializeEmpty()
