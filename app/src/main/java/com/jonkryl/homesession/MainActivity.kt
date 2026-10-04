@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
     private var budget = 15
     private var taskFilter: TaskStatus? = null
     private var chosenLastDone: LocalDate? = null
+    private var renderedOn: LocalDate? = null
     private var restoredDraft: Bundle? = null
     private lateinit var roomNameInput: EditText
     private lateinit var taskTitleInput: EditText
@@ -130,6 +131,17 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         if (::banner.isInitialized) banner.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Calendar-based suggestions may change while the app is in the background.
+        if (::content.isInitialized && renderedOn != repository.today) {
+            when (page) {
+                Page.HOME, Page.TASKS, Page.PLAN -> render()
+                else -> Unit // Keep unsaved editor fields and the active session intact.
+            }
+        }
     }
 
     override fun onStop() {
@@ -229,6 +241,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         navigationBack.isEnabled = repository.state.onboardingComplete && page != Page.HOME
+        renderedOn = repository.today
         scroll.post { scroll.scrollTo(0, oldY) }
     }
 
