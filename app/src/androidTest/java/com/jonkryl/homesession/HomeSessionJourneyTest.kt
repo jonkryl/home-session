@@ -10,6 +10,7 @@ import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -105,7 +106,8 @@ class HomeSessionJourneyTest {
         onView(withId(R.id.task_duration)).perform(scrollTo(), replaceText(duration.toString()), closeSoftKeyboard())
         onView(withId(R.id.task_interval)).perform(scrollTo(), replaceText("7"), closeSoftKeyboard())
         onView(withId(R.id.task_room)).perform(scrollTo(), click())
-        onData(allOf(instanceOf(String::class.java), equalTo("Study"))).perform(click())
+        onData(allOf(instanceOf(String::class.java), equalTo("Study"))).inRoot(isPlatformPopup()).perform(click())
+        onView(withId(R.id.task_room)).check(matches(androidx.test.espresso.matcher.ViewMatchers.withSpinnerText("Study")))
         tap(R.id.task_save)
     }
 }
