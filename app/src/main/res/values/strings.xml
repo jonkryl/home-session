@@ -84,6 +84,12 @@
     <string name="save_failed">Could not save the change. Your previous data are kept. Please try again.</string>
     <string name="load_failed">Could not read your saved tasks. Your data have been kept on this device.</string>
     <string name="retry">Try again</string>
+    <string name="recovery_explanation">You can retry opening your schedule or start an empty one. Before any replacement, the original files will be copied and checked on this device.</string>
+    <string name="recovery_start_empty">Start an empty schedule</string>
+    <string name="recovery_confirm_title">Start an empty schedule?</string>
+    <string name="recovery_confirm_body">Your current rooms, tasks, and history will not appear in the new schedule. Their original files will remain in a separate recovery copy on this device. Nothing will be replaced if the copy cannot be verified.</string>
+    <string name="recovery_copying">Keeping a recovery copy…</string>
+    <string name="recovery_failed">Could not complete the fresh start. Your original data remain on this device, including any recovery copy already created. Free some storage and try again.</string>
     <string name="session_preview">Your suggested session</string>
     <string name="plan_total">%1$d estimated minutes · Limit %2$d</string>
     <string name="planner_explanation">Tasks without a previous date come first. Other due tasks are ordered by their age relative to their repeat interval and their priority. Each next task must fit the time left.</string>

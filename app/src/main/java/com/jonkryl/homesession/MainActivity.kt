@@ -28,6 +28,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.ViewModelProvider
 import com.jonkryl.homesession.ads.BannerController
 import com.jonkryl.homesession.core.ExcludedTask
 import com.jonkryl.homesession.core.ExclusionReason
@@ -206,13 +207,44 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun showLoadFailure() {
+        val recovery = ViewModelProvider(this, HomeRecoveryViewModel.Factory(application))
+            .get(HomeRecoveryViewModel::class.java)
         val root = column().apply {
             setBackgroundColor(cream)
-            setPadding(dp(24), dp(40), dp(24), dp(24))
-            addView(text(getString(R.string.load_failed), 20f, forest))
-            addView(button(getString(R.string.retry)) { recreate() }, matchWrap(20))
         }
+        configureInsets(root)
+        val content = column().apply { setPadding(dp(24), dp(24), dp(24), dp(24)) }
+        content.addView(text(getString(R.string.load_failed), 20f, forest))
+        content.addView(text(getString(R.string.recovery_explanation), 17f, muted), matchWrap(12))
+        val retry = button(getString(R.string.retry), R.id.recovery_retry) { recreate() }
+        content.addView(retry, matchWrap(20))
+        val empty = button(getString(R.string.recovery_start_empty), R.id.recovery_start_empty) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.recovery_confirm_title)
+                .setMessage(R.string.recovery_confirm_body)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.recovery_start_empty) { _, _ -> recovery.restartEmpty() }
+                .show()
+        }
+        content.addView(empty, matchWrap(12))
+        val status = text("", 17f, muted).apply {
+            id = R.id.recovery_status
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+        }
+        content.addView(status, matchWrap(12))
+        root.addView(ScrollView(this).apply { addView(content) }, matchWrap())
         setContentView(root)
+        recovery.status.observe(this) { result ->
+            val busy = result == HomeRecoveryViewModel.Status.COPYING
+            retry.isEnabled = !busy
+            empty.isEnabled = !busy
+            status.text = when (result) {
+                HomeRecoveryViewModel.Status.COPYING -> getString(R.string.recovery_copying)
+                HomeRecoveryViewModel.Status.FAILED -> getString(R.string.recovery_failed)
+                else -> ""
+            }
+            if (result == HomeRecoveryViewModel.Status.COMPLETE && recovery.consumeCompletion()) recreate()
+        }
     }
 
     private fun navigate(target: Page) {
