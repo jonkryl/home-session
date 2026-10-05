@@ -11,7 +11,15 @@ import java.time.LocalDate
 /** Private app storage, backed by an atomic replace; no storage or network permission is required. */
 class AtomicJsonHomePersistence(private val file: AtomicFile) : HomePersistence {
     override fun load(): HomeState? {
-        val bytes = try { file.readFully() } catch (_: FileNotFoundException) { return null }
+        // AtomicFile may replace the base with .bak or remove an interrupted .new on read.
+        // Preserve every original first, including when the recovered backup is also invalid.
+        if (HomeStateRecovery.hasPendingAtomicRecovery(file.baseFile)) {
+            HomeStateRecovery(file.baseFile).preserve()
+        }
+        val bytes = try { file.readFully() } catch (error: FileNotFoundException) {
+            if (HomeStateRecovery.savedFiles(file.baseFile).any { it.exists() }) throw error
+            return null
+        }
         return HomeJson.decode(bytes.toString(Charsets.UTF_8))
     }
 
@@ -46,5 +54,19 @@ class HomeRepository(context: Context, clock: Clock? = null) {
     fun undoDone(taskId: String): Boolean = store.undoDone(taskId)
     fun finishSession() = store.finishSession()
     fun cancelSession() = store.cancelSession()
-    companion object { const val FILE_NAME = "home-session-state-v1.json" }
+    companion object {
+        const val FILE_NAME = "home-session-state-v1.json"
+
+        /** Only call after the user confirms replacing an unreadable schedule with an empty one. */
+        fun restartEmpty(context: Context): File {
+            val base = File(context.applicationContext.filesDir, FILE_NAME)
+            return HomeStateRecovery(base).restartEmpty {
+                val state = HomeState()
+                AtomicJsonHomePersistence(AtomicFile(base)).save(state)
+                if (!base.readBytes().contentEquals(HomeJson.encode(state).toByteArray(Charsets.UTF_8))) {
+                    throw IOException("New home state could not be verified")
+                }
+            }
+        }
+    }
 }

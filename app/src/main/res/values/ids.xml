@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="recovery_retry" type="id" />
+    <item name="recovery_start_empty" type="id" />
+    <item name="recovery_status" type="id" />
     <item name="main_scroll" type="id" />
     <item name="toolbar_back" type="id" />
     <item name="screen_title" type="id" />
