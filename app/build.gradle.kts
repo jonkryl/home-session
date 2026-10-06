@@ -33,9 +33,11 @@ android {
     }
     buildTypes {
         debug {
+            buildConfigField("String", "APPMETRICA_API_KEY", "\"\"")
             buildConfigField("String", "YANDEX_BANNER_ID", "\"demo-banner-yandex\"")
         }
         release {
+            buildConfigField("String", "APPMETRICA_API_KEY", "\"648806a5-ba86-433a-8179-494b71be323b\"")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -69,6 +71,7 @@ tasks.configureEach {
 }
 
 dependencies {
+    implementation("io.appmetrica.analytics:analytics:8.5.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation("androidx.activity:activity:1.6.0")
     implementation("androidx.core:core-ktx:1.13.1")

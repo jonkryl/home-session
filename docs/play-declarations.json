@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "preparedOn": "2026-10-03",
+  "preparedOn": "2026-10-06",
   "packageName": "com.jonkryl.homesession",
-  "status": "prepared_not_submitted",
+  "status": "appmetrica_update_prepared_not_submitted",
   "contactEmail": "jonkryl@gmail.com",
   "privacyPolicyUrl": "https://jonkryl.github.io/home-session/privacy/",
   "implementation": {
@@ -24,7 +24,21 @@
     "purchases": false,
     "localDataPassedToAds": false,
     "localData": "Rooms; task title/duration/repeat interval/priority/last completion date; pending session; explicit completion journal. Private atomic app file. Deleting task retains past history snapshots. Clearing app storage removes all records/preferences.",
-    "retryPolicy": "One banner request at a time;45s watchdog; three delayed retries10/30/60s; fresh budget on foreground/network restoration"
+    "retryPolicy": "One banner request at a time;45s watchdog; three delayed retries10/30/60s; fresh budget on foreground/network restoration",
+    "appMetrica": {
+      "sdk": "io.appmetrica.analytics:analytics:8.5.1",
+      "releaseOnly": true,
+      "installationAndSessionAnalytics": true,
+      "locationTracking": false,
+      "advertisingIdentifiersTracking": false,
+      "crashReporting": false,
+      "nativeCrashReporting": false,
+      "anrMonitoring": false,
+      "purchaseAutoTracking": false,
+      "customEvents": false,
+      "userContentSent": false,
+      "personalizationChoiceDisablesAnalytics": false
+    }
   },
   "appAccess": {
     "loginRequired": false,
@@ -50,7 +64,9 @@
     "independentSecurityReview": false,
     "selectedDataTypes": [
       "Approximate location",
-      "Device or other IDs"
+      "Device or other IDs",
+      "App interactions",
+      "Other app performance data"
     ],
     "handlingForEachSelectedType": {
       "collected": true,
@@ -58,10 +74,12 @@
       "ephemeral": false,
       "required": true,
       "collectionPurposes": [
-        "Advertising or marketing"
+        "Advertising or marketing",
+        "Analytics"
       ],
       "sharingPurposes": [
-        "Advertising or marketing"
+        "Advertising or marketing",
+        "Analytics"
       ]
     },
     "approximateLocationBasis": "Conservative disclosure for Yandex IP-inferred region during ad requests in either mode. Device GPS is not requested or used.",
@@ -82,12 +100,52 @@
       "Health data"
     ],
     "sdkPublishedNoCollection": [
-      "App interactions",
       "Crash logs",
-      "Diagnostics",
-      "Other app performance data"
+      "Diagnostics"
     ],
-    "notes": "Declarations must be saved in the actual Play form against the verified final merged manifest/dependencies. This prepared JSON is not a Console receipt or submitted questionnaire."
+    "notes": "Declarations must be saved in the actual Play form against the verified final merged manifest/dependencies. This prepared JSON is not a Console receipt or submitted questionnaire.",
+    "appMetricaAnalyticsHandling": {
+      "App interactions": {
+        "collected": true,
+        "shared": true,
+        "ephemeral": false,
+        "required": true,
+        "collectionPurposes": [
+          "Analytics"
+        ],
+        "sharingPurposes": [
+          "Analytics"
+        ],
+        "basis": "Conservative disclosure of installation/session and app-open statistics; no raw record content or custom actions."
+      },
+      "Other app performance data": {
+        "collected": true,
+        "shared": true,
+        "ephemeral": false,
+        "required": true,
+        "collectionPurposes": [
+          "Analytics"
+        ],
+        "sharingPurposes": [
+          "Analytics"
+        ],
+        "basis": "Technical device/OS/app information sent by the SDK; crash and ANR reports disabled."
+      },
+      "Device or other IDs": {
+        "collected": true,
+        "shared": true,
+        "ephemeral": false,
+        "required": true,
+        "collectionPurposes": [
+          "Analytics"
+        ],
+        "sharingPurposes": [
+          "Analytics"
+        ],
+        "basis": "Technical analytics identifier; advertising identifier collection disabled in AppMetrica."
+      }
+    },
+    "appMetricaNotes": "Prepared source-backed disclosure, not a submitted Play Console answer. AppMetrica analytics are required in this implementation because there is no analytics opt-out; the advertising personalization choice does not stop these statistics. Verify final release and update the actual Play form before publishing the release."
   },
   "targetAudience": {
     "ageGroups": [
@@ -136,6 +194,7 @@
     "https://ads.yandex.com/helpcenter/en/dev/android/app-privacy-android",
     "https://yandex.ru/support/direct/en/efficiency/geotargeting",
     "https://support.google.com/googleplay/android-developer/answer/10787469?hl=en",
-    "https://yandex.com/legal/international_ads_privacy_policy/en/"
+    "https://yandex.com/legal/international_ads_privacy_policy/en/",
+    "https://appmetrica.yandex.com/docs/en/data-security/google-data-safety"
   ]
 }
